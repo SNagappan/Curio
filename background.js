@@ -104,12 +104,50 @@ function updateCounter() {
  * @param {float} seconds The number of seconds to add to the counter.
  */
 function updateTime(site, seconds) {
+  console.log('update time');
   var sites = JSON.parse(localStorage.sites);
   if (!sites[site]) {
     sites[site] = 0;
   }
+  var prevTime = sites[site];
   sites[site] = sites[site] + seconds;
+  var nowTime = sites[site];
   localStorage.sites = JSON.stringify(sites);
+
+  var time = Math.floor(sites[site]);
+  var alert, triggerA = false;
+  // alert 1
+  //if (time > 600 && Math.floor(nowTime / 60) - Math.floor(prevTime / 60) > 0) {
+  if (time > 600) {
+    triggerA = true;
+    alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes today.\"";
+  }
+
+  // trigger alert
+  if (triggerA) {
+    console.log('trigger alert');
+    console.log(alert);
+    chrome.tabs.executeScript(currentTabId, {file: "jquery.js"}, function() {
+      chrome.tabs.executeScript(currentTabId, {code: "var jsParams={type: \"alert\", alert:" + alert + "}"}, function() {
+        chrome.tabs.executeScript(currentTabId, {file: "inject.js"}, function() {
+          chrome.tabs.executeScript(currentTabId, {file: "changeA.js"});
+        });
+        chrome.tabs.insertCSS(currentTabId, {file: "dialog.css"});
+      });
+    });
+  }
+}
+
+function incrementUrlToCount(url) {
+  console.log("increment visit to " + url);
+
+  var urlToCount = JSON.parse(localStorage.urlToCount);
+  if (!urlToCount[url]) {
+    urlToCount[url] = 0;
+  }
+
+  urlToCount[url]++;
+  localStorage.urlToCount = JSON.stringify(urlToCount);
 }
 
 /**
@@ -201,31 +239,24 @@ function initialize() {
     }
     if (changeInfo && changeInfo.status == "complete" && changedURL) {
       var url = getSiteFromUrl(tab.url);
-      console.log("increment visit to " + url);
-
+      incrementUrlToCount(url);
       var urlToCount = JSON.parse(localStorage.urlToCount);
-      if (!urlToCount[url]) {
-        urlToCount[url] = 0;
-      }
-
-      urlToCount[url]++;
-      localStorage.urlToCount = JSON.stringify(urlToCount);
       
-      var trigger = false;
+      var triggerQ = false;
       var question;
       // question 1
       if (urlToCount[url] > 0 && urlToCount[url] % 2 == 0) {
-        trigger = true;
+        triggerQ = true;
         question = "\"" + "This is the " + urlToCount[url] + "th times you visited " + url + " today. Why are you visiting this site so often?" + "\"";
       }
       // question 2
       // TODO
 
-      // trigger pop-up
-      if (trigger) {
+      // trigger question
+      if (triggerQ) {
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          chrome.tabs.executeScript(tabId, {code: "var jsParams={question:" + question + "}"}, function() {
-            chrome.tabs.executeScript(tabId, {file: "dialog.js"}, function() {
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question\", question:" + question + "}"}, function() {
+            chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
               chrome.tabs.executeScript(tabId, {file: "changeQ.js"});
             });
             chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
