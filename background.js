@@ -135,23 +135,23 @@ function initialize() {
   // Default is to do idle detection.
   localStorage.idleDetection = "true";
 
-  chrome.webNavigation.onCommitted.addListener(
-  function(details) {
-    if(localStorage["paused"] == "true" || details.frameId != 0) {
-      return;
-    }
+  //chrome.webNavigation.onCommitted.addListener(
+  //function(details) {
+    //if(localStorage["paused"] == "true" || details.frameId != 0) {
+      //return;
+    //}
 
-    url = getSiteFromUrl(details.url);
-    console.log("increment visit to " + url);
+    //url = getSiteFromUrl(details.url);
+    //console.log("increment visit to " + url);
 
-    var urlToCount = JSON.parse(localStorage.urlToCount);
-    if (!urlToCount[url]) {
-      urlToCount[url] = 0;
-    }
+    //var urlToCount = JSON.parse(localStorage.urlToCount);
+    //if (!urlToCount[url]) {
+      //urlToCount[url] = 0;
+    //}
 
-    urlToCount[url]++;
-    localStorage.urlToCount = JSON.stringify(urlToCount);
-  });
+    //urlToCount[url]++;
+    //localStorage.urlToCount = JSON.stringify(urlToCount);
+  //});
 
   /* Add some listeners for tab changing events. We want to update our
   *  counters when this sort of stuff happens. */
@@ -200,14 +200,23 @@ function initialize() {
       return;
     }
     if (changeInfo && changeInfo.status == "complete" && changedURL) {
-      var counts = JSON.parse(localStorage.urlToCount);
-      var site = getSiteFromUrl(tab.url);
+      var url = getSiteFromUrl(tab.url);
+      console.log("increment visit to " + url);
+
+      var urlToCount = JSON.parse(localStorage.urlToCount);
+      if (!urlToCount[url]) {
+        urlToCount[url] = 0;
+      }
+
+      urlToCount[url]++;
+      localStorage.urlToCount = JSON.stringify(urlToCount);
+      
       var trigger = false;
       var question;
       // question 1
-      if (counts[site] > 0 && counts[site] % 2 == 0) {
+      if (urlToCount[url] > 0 && urlToCount[url] % 2 == 0) {
         trigger = true;
-        question = "\"" + "This is the " + counts[site] + "th times you visited " + site + " today. Why are you visiting this site so often?" + "\"";
+        question = "\"" + "This is the " + urlToCount[url] + "th times you visited " + url + " today. Why are you visiting this site so often?" + "\"";
       }
       // question 2
       // TODO
