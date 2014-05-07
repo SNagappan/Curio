@@ -192,6 +192,16 @@ function initialize() {
       }
     });
 
+  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
+    console.log(changeInfo);
+    if(changeInfo && changeInfo.status == "complete"){
+        chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+          chrome.tabs.executeScript(tabId, {file: 'dialog.js'});
+          chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+        });
+    }
+  });
+
   /* Force an update of the counter every minute. Otherwise, the counter
      only updates for selection or URL changes. */
   window.setInterval(updateCounter, updateCounterInterval);

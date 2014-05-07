@@ -1,0 +1,23 @@
+<div id="curio">
+  <div id="curio_form_container">
+      <div>
+          <h2 id="curio_title">Curi.o</h2>
+          <p id="curio_question">This is your form description. Click here to edit.</p>
+      </div>
+      <div>
+          <textarea id="curio_textarea" name="element_1"></textarea>
+      </div>
+      <button id="curio_submit" class="curio_btn" type="button">Submit</button>
+      <button id="curio_cancel" class="curio_btn" type="button">Cancel</button>
+  </div>
+  <script>
+    $("#curio_submit").click(function() {
+      $("#curio").remove();
+    });
+
+    $("#curio_cancel").click(function() {
+      console.log("cancel");
+      $("#curio").remove();
+    });
+  </script>
+</div>
