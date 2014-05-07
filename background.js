@@ -2,6 +2,7 @@ var currentSite = null;
 var currentTabId = null;
 var startTime = null;
 var siteRegexp = /^(\w+:\/\/[^\/]+).*$/;
+var changedURL = false;
 
 var updateCounterInterval = 1000 * 60;  // 1 minute.
 
@@ -134,23 +135,23 @@ function initialize() {
   // Default is to do idle detection.
   localStorage.idleDetection = "true";
 
-  chrome.webNavigation.onCommitted.addListener(
-  function(details) {
-    if(localStorage["paused"] == "true" || details.frameId != 0) {
-      return;
-    }
+  //chrome.webNavigation.onCommitted.addListener(
+  //function(details) {
+    //if(localStorage["paused"] == "true" || details.frameId != 0) {
+      //return;
+    //}
 
-    url = getSiteFromUrl(details.url);
-    console.log("increment visit to " + url);
+    //url = getSiteFromUrl(details.url);
+    //console.log("increment visit to " + url);
 
-    var urlToCount = JSON.parse(localStorage.urlToCount);
-    if (!urlToCount[url]) {
-      urlToCount[url] = 0;
-    }
+    //var urlToCount = JSON.parse(localStorage.urlToCount);
+    //if (!urlToCount[url]) {
+      //urlToCount[url] = 0;
+    //}
 
-    urlToCount[url]++;
-    localStorage.urlToCount = JSON.stringify(urlToCount);
-  });
+    //urlToCount[url]++;
+    //localStorage.urlToCount = JSON.stringify(urlToCount);
+  //});
 
   /* Add some listeners for tab changing events. We want to update our
   *  counters when this sort of stuff happens. */
@@ -194,11 +195,44 @@ function initialize() {
 
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     console.log(changeInfo);
-    if(changeInfo && changeInfo.status == "complete"){
+    if (changeInfo && changeInfo.status == "loading" && changeInfo.url) {
+      changedURL = true;
+      return;
+    }
+    if (changeInfo && changeInfo.status == "complete" && changedURL) {
+      var url = getSiteFromUrl(tab.url);
+      console.log("increment visit to " + url);
+
+      var urlToCount = JSON.parse(localStorage.urlToCount);
+      if (!urlToCount[url]) {
+        urlToCount[url] = 0;
+      }
+
+      urlToCount[url]++;
+      localStorage.urlToCount = JSON.stringify(urlToCount);
+      
+      var trigger = false;
+      var question;
+      // question 1
+      if (urlToCount[url] > 0 && urlToCount[url] % 2 == 0) {
+        trigger = true;
+        question = "\"" + "This is the " + urlToCount[url] + "th times you visited " + url + " today. Why are you visiting this site so often?" + "\"";
+      }
+      // question 2
+      // TODO
+
+      // trigger pop-up
+      if (trigger) {
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          chrome.tabs.executeScript(tabId, {file: 'dialog.js'});
-          chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={question:" + question + "}"}, function() {
+            chrome.tabs.executeScript(tabId, {file: "dialog.js"}, function() {
+              chrome.tabs.executeScript(tabId, {file: "changeQ.js"});
+            });
+            chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+          });
         });
+      }
+      changedURL = false;
     }
   });
 
