@@ -117,8 +117,8 @@ function updateTime(site, seconds) {
   var time = Math.floor(sites[site]);
   var alert, triggerA = false;
   // alert 1
-  //if (time > 600 && Math.floor(nowTime / 60) - Math.floor(prevTime / 60) > 0) {
-  if (time > 600) {
+  if (time > 600 && Math.floor(nowTime / 30) - Math.floor(prevTime / 30) > 0) {
+  //if (time > 600) {
     triggerA = true;
     alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes today.\"";
   }

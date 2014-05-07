@@ -6,6 +6,8 @@
       </div>
   </div>
   <script>
-    $("#curioA").fadeOut(5000);
+    $("#curioA").fadeOut(5000, function() {
+      $("#curioA").remove();
+    });
   </script>
 </div>
