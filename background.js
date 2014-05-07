@@ -2,6 +2,7 @@ var currentSite = null;
 var currentTabId = null;
 var startTime = null;
 var siteRegexp = /^(\w+:\/\/[^\/]+).*$/;
+var changedURL = false;
 
 var updateCounterInterval = 1000 * 60;  // 1 minute.
 
@@ -194,11 +195,35 @@ function initialize() {
 
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     console.log(changeInfo);
-    if(changeInfo && changeInfo.status == "complete"){
+    if (changeInfo && changeInfo.status == "loading" && changeInfo.url) {
+      changedURL = true;
+      return;
+    }
+    if (changeInfo && changeInfo.status == "complete" && changedURL) {
+      var counts = JSON.parse(localStorage.urlToCount);
+      var site = getSiteFromUrl(tab.url);
+      var trigger = false;
+      var question;
+      // question 1
+      if (counts[site] > 0 && counts[site] % 2 == 0) {
+        trigger = true;
+        question = "\"" + "This is the " + counts[site] + "th times you visited " + site + " today. Why are you visiting this site so often?" + "\"";
+      }
+      // question 2
+      // TODO
+
+      // trigger pop-up
+      if (trigger) {
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          chrome.tabs.executeScript(tabId, {file: 'dialog.js'});
-          chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={question:" + question + "}"}, function() {
+            chrome.tabs.executeScript(tabId, {file: "dialog.js"}, function() {
+              chrome.tabs.executeScript(tabId, {file: "changeQ.js"});
+            });
+            chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+          });
         });
+      }
+      changedURL = false;
     }
   });
 
