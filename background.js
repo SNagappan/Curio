@@ -280,6 +280,26 @@ function initialize() {
   // Keep track of idle time.
   chrome.idle.queryState(60, checkIdleTime);
   chrome.idle.onStateChanged.addListener(checkIdleTime);
+
+  chrome.alarms.create("clearAlarm", {delayInMinutes: minsTo5AM(), periodInMinutes: 1440} );
+  chrome.alarms.onAlarm.addListener(function(alarm) {
+    console.log("Clear Alarm Triggered");
+    clearData();
+  });
+}
+
+function clearData() {
+  console.log("Clear Data");
+  localStorage.sites = JSON.stringify({});
+  localStorage.urlToCount = JSON.stringify({});
+}
+
+function minsTo5AM() {
+    var now = new Date();
+    var next = new Date(now);
+    next.setDate(next.getDate() + 1);
+    next.setHours(5,0,0,0);
+    return (next - now)/6e4;
 }
 
 initialize();
