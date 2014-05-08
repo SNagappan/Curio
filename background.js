@@ -6,6 +6,18 @@ var changedURL = false;
 
 var updateCounterInterval = 1000 * 60;  // 1 minute.
 
+var guid = (function() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+               .toString(16)
+               .substring(1);
+  }
+  return function() {
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+           s4() + '-' + s4() + s4() + s4();
+  };
+})();
+
 /**
  * Returns just the site/domain from the url. Includes the protocol.
  * chrome://extensions/some/other?blah=ffdf -> chrome://extensions
@@ -276,6 +288,11 @@ function initialize() {
   //  localStorage["storageType"] = "local";
   // }
   localStorage["storageType"] = "local";
+
+  // set uuid
+  if (localStorage.uuid == undefined) {
+    localStorage.uuid = guid();
+  }
 
   // Keep track of idle time.
   chrome.idle.queryState(60, checkIdleTime);
