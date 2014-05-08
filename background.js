@@ -27,7 +27,11 @@ var guid = (function() {
 function getSiteFromUrl(url) {
   var match = url.match(siteRegexp);
   if (match) {
-    return match[1];
+    // check scheme
+    var scheme = match[1].split(':')[0];
+    if (scheme == 'http' || scheme == 'https') {
+      return match[1].substring(scheme.length + 3);
+    }
   }
   return null;
 }
