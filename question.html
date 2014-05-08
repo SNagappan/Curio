@@ -12,6 +12,7 @@
   </div>
   <script>
     $("#curio_submit").click(function() {
+      $.post("http://localhost:3000/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: $("#curio_textarea").val()});
       $("#curioQ").remove();
     });
 

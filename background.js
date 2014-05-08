@@ -3,6 +3,7 @@ var currentTabId = null;
 var startTime = null;
 var siteRegexp = /^(\w+:\/\/[^\/]+).*$/;
 var changedURL = false;
+var host = "http://localhost:3000";
 
 var updateCounterInterval = 1000 * 60;  // 1 minute.
 
@@ -129,6 +130,9 @@ function updateTime(site, seconds) {
   sites[site] = sites[site] + seconds;
   var nowTime = sites[site];
   localStorage.sites = JSON.stringify(sites);
+
+  // send data to server
+  jQuery.post(host + "/api/active-time", {uid: localStorage.uid, site: site, time: seconds});
 
   var time = Math.floor(sites[site]);
   var alert, triggerA = false;
@@ -257,13 +261,16 @@ function initialize() {
       var url = getSiteFromUrl(tab.url);
       incrementUrlToCount(url);
       var urlToCount = JSON.parse(localStorage.urlToCount);
+
+      // send data to server
+      jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
       
       var triggerQ = false;
       var question;
       // question 1
       if (urlToCount[url] > 0 && urlToCount[url] % 2 == 0) {
         triggerQ = true;
-        question = "\"" + "This is the " + urlToCount[url] + "th times you visited " + url + " today. Why are you visiting this site so often?" + "\"";
+        question = "This is the " + urlToCount[url] + "th times you visited " + url + " today. Why are you visiting this site so often?";
       }
       // question 2
       // TODO
@@ -271,7 +278,7 @@ function initialize() {
       // trigger question
       if (triggerQ) {
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question\", question:" + question + "}"}, function() {
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question\", question:\"" + question + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
             chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
               chrome.tabs.executeScript(tabId, {file: "changeQ.js"});
             });
@@ -294,8 +301,8 @@ function initialize() {
   localStorage["storageType"] = "local";
 
   // set uuid
-  if (localStorage.uuid == undefined) {
-    localStorage.uuid = guid();
+  if (localStorage.uid == undefined) {
+    localStorage.uid = guid();
   }
 
   // Keep track of idle time.
