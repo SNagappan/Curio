@@ -5,7 +5,7 @@
   right:0;
   width:350px;
   background-color:#8D41D6;
-  z-index:100;
+  z-index:1000;
   font-family:verdana,helvetica,arial,sans-serif;
 }
 
@@ -17,7 +17,7 @@
   width:350px;
   height:100px;
   background-color:#8D41D6;
-  z-index:100;
+  z-index:1000;
   font-family:verdana,helvetica,arial,sans-serif;
 }
 
