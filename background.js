@@ -2,7 +2,6 @@ var currentSite = null;
 var currentTabId = null;
 var startTime = null;
 var siteRegexp = /^(\w+:\/\/[^\/]+).*$/;
-var changedURL = false;
 var host = "http://localhost:3000";
 
 var updateCounterInterval = 1000 * 60;  // 1 minute.
@@ -233,6 +232,9 @@ function initialize() {
     console.log("Detected window focus changed.");
     chrome.tabs.getSelected(windowId,
     function(tab) {
+      if (tab == undefined) {
+        return;
+      }
       console.log("Window/Tab changed");
       currentTabId = tab.id;
       updateCounter();
@@ -252,13 +254,21 @@ function initialize() {
     });
 
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
-    console.log(changeInfo);
-    if (changeInfo && changeInfo.status == "loading" && changeInfo.url) {
-      changedURL = true;
+    //console.log("############ onupdate ############");
+    //console.log(tab.id);
+    //console.log(tab.url);
+    //console.log(changeInfo);
+    if (!changeInfo || changeInfo.status != "complete") {
       return;
     }
-    if (changeInfo && changeInfo.status == "complete" && changedURL) {
-      var url = getSiteFromUrl(tab.url);
+    var incCounter = false;
+    var url = getSiteFromUrl(tab.url);
+    var tabid = 'tab' + tab.id;
+    if (localStorage[tabid] == undefined || localStorage[tabid] != url) {
+      incCounter = true;
+      localStorage[tabid] = url;
+    }
+    if (incCounter) {
       incrementUrlToCount(url);
       var urlToCount = JSON.parse(localStorage.urlToCount);
 
@@ -277,6 +287,7 @@ function initialize() {
 
       // trigger question
       if (triggerQ) {
+        console.log("trigger question");
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
           chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question\", question:\"" + question + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
             chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
@@ -286,7 +297,6 @@ function initialize() {
           });
         });
       }
-      changedURL = false;
     }
   });
 
