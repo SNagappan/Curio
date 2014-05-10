@@ -13,7 +13,7 @@ if (jsParams.type == "question1" || jsParams.type == "question2") {
   }
 } else if (jsParams.type == "multichoice1") {
   console.log($("#curioM1").length);
-  if ($("#curioM1").length > 0) {
+  if ($("#curioM1").length > 0 || $("#curioM2").length > 0 || $("#curioQ").length > 0) {
     exists = true;
   }
 } else if (jsParams.type == "multichoice2") {

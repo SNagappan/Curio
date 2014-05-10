@@ -49,8 +49,6 @@ function getSiteFromUrl(url) {
         return null;
       }
     }
-    console.log(ignoredSites)
-    console.log(match)
     return match;
   }
   return null;
@@ -189,10 +187,9 @@ function updateTime(site, seconds) {
     if (getSiteFromUrl(tab.url) != site) return;
 
     var time = Math.floor(currentData.activeTime);
-    var alert;
     // trigger alert 1
     if (time > currentData.triggerTime) {
-      alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes.\"";
+      var alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes.\"";
       // set next trigger time (5 mins)
       currentData.triggerTime += 5 * 60;
       localStorage[currentTabId] = JSON.stringify(currentData);
@@ -208,7 +205,7 @@ function updateTime(site, seconds) {
     }
 
     // trigger active-time question after you stayed on a site for a while
-    if (time > 10 && !currentData.shownMC1) {
+    if (time > 3 * 60 && !currentData.shownMC1) {
       // trigger mutliple choice question 1
       console.log("trigger multiple question 1 (active time)");
       currentData.shownMC1 = 1;
@@ -351,6 +348,9 @@ function initialize() {
       incrementUrlToCount(url);
       var urlToCount = JSON.parse(localStorage.urlToCount);
 
+      console.log("############ onupdate ############");
+      console.log("visisted : " + urlToCount[url]);
+
       // send data to server
       jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
 
@@ -358,7 +358,7 @@ function initialize() {
         //trigger multiple choice question 2
         console.log("trigger multiple question 2");
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice2\",times:\"" + urlToCount[url] + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
             chrome.tabs.executeScript(tabId, {file: "inject.js"});
             chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
           });
@@ -387,7 +387,17 @@ function initialize() {
             });
           });
         }
-      } else {
+      } else if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 2) {
+        // trigger alert 2 (times visited)
+        var alert = "\"You've visited this site for " + urlToCount[url] + " times today.\"";
+        chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"alert\", alert:" + alert + "}"}, function() {
+            chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
+              chrome.tabs.executeScript(tabId, {file: "changeAlert.js"});
+            });
+            chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+          });
+        });
       }
     }
   });
