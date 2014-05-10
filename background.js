@@ -195,7 +195,7 @@ function updateTime(site, seconds) {
       triggerA = true;
       alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes.\"";
       // set next trigger time
-      currentData.triggerTime += 30;
+      currentData.triggerTime += 5 * 60;
       localStorage[currentTabId] = JSON.stringify(currentData);
     }
 
@@ -332,8 +332,8 @@ function initialize() {
       var data = {};
       data.url = url;
       data.activeTime = 0;
-      // default 15 mins
-      data.triggerTime = 15 * 60;
+      // default not show, set it really large
+      data.triggerTime = 120 * 60;
       localStorage[tab.id] = JSON.stringify(data);
     }
     if (incCounter) {
@@ -395,7 +395,7 @@ function initialize() {
     console.log(msg);
     if (msg.time) {
       var currentData = JSON.parse(localStorage[sender.tab.id]);
-      currentData.triggerTime = parseInt(msg.time);
+      currentData.triggerTime = parseInt(msg.time) * 60;
       localStorage[sender.tab.id] = JSON.stringify(currentData);
     }
     if (msg.answer) {
