@@ -32,7 +32,8 @@ function getSiteFromUrl(url) {
     if (scheme == 'http' || scheme == 'https') {
       match = match[1].substring(scheme.length + 3);
     } else {
-      match = match[1]
+      // only care about http and https
+      return null
     }
 
     /* Check the ignored list. */
