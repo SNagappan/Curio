@@ -30,8 +30,27 @@ function getSiteFromUrl(url) {
     // check scheme
     var scheme = match[1].split(':')[0];
     if (scheme == 'http' || scheme == 'https') {
-      return match[1].substring(scheme.length + 3);
+      match = match[1].substring(scheme.length + 3);
+    } else {
+      match = match[1]
     }
+
+    /* Check the ignored list. */
+    var ignoredSites = localStorage["ignoredSites"];
+    if (!ignoredSites) {
+      ignoredSites = [];
+    } else {
+      ignoredSites = JSON.parse(ignoredSites);
+    }
+    for (i in ignoredSites) {
+      if (ignoredSites[i] == match) {
+        console.log("Site is on ignore list: " + match);
+        return null;
+      }
+    }
+    console.log(ignoredSites)
+    console.log(match)
+    return match;
   }
   return null;
 }
@@ -56,6 +75,34 @@ function resume() {
   console.log("Resuming timers.");
   localStorage["paused"] = "false";
   chrome.browserAction.setIcon({path: 'images/icon.png'});
+}
+
+/**
+* Adds a site to the ignored list.
+*/
+function addIgnoredSite(site) {
+  console.log("Removing " + site);
+  site = getSiteFromUrl(site);
+  if (!site) {
+    return;
+  }
+  var ignoredSites = localStorage.ignoredSites;
+  if (!ignoredSites) {
+    ignoredSites = [];
+  } else {
+    ignoredSites = JSON.parse(ignoredSites);
+  }
+  ignoredSites.push(site);
+  localStorage.ignoredSites = JSON.stringify(ignoredSites);
+
+  var sites = JSON.parse(localStorage.sites);
+  delete sites[site];
+  localStorage.sites = JSON.stringify(sites);
+
+  var urlToCount = JSON.parse(localStorage.urlToCount);
+  delete urlToCount[site];
+  localStorage.urlToCount = JSON.stringify(urlToCount);
+  console.log("Removing " + site);
 }
 
 /**
@@ -257,7 +304,10 @@ function initialize() {
   /* Listen for update requests. These come from the popup. */
   chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
-      if (request.action == "pause") {
+      if (request.action == "addIgnoredSite") {
+        addIgnoredSite(request.site);
+        sendResponse({});
+      } else if (request.action == "pause") {
         pause();
       } else if (request.action == "resume") {
         resume();
