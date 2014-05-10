@@ -18,10 +18,10 @@
   <script>
     $("#curio_submit").click(function() {
         if ($("input[name=same]:checked", "#curio_answerarea").val() == 1) {
-          $.post("http://localhost:3000/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: $("#curio_answer").val()});
+          $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: $("#curio_answer").text()});
         } else {
           var answer = $("#curio_textarea").val();
-          $.post("http://localhost:3000/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: answer});
+          $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: answer});
           chrome.runtime.sendMessage({answer: answer});
         }
       $("#curioQ").remove();

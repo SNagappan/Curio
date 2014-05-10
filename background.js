@@ -2,7 +2,7 @@ var currentSite = null;
 var currentTabId = null;
 var startTime = null;
 var siteRegexp = /^(\w+:\/\/[^\/]+).*$/;
-var host = "http://localhost:3000";
+var host = "http://curi-o.herokuapp.com";
 
 var updateCounterInterval = 1000 * 60;  // 1 minute.
 
