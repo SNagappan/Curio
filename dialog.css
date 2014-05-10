@@ -1,4 +1,4 @@
-#curioQ
+.curio
 {
   position:fixed;
   bottom:0;
@@ -7,28 +7,12 @@
   background-color:#8D41D6;
   z-index:1000;
   font-family:verdana,helvetica,arial,sans-serif;
-}
-
-#curioA
-{
-  position:fixed;
-  bottom:0;
-  right:0;
-  width:350px;
-  height:100px;
-  background-color:#8D41D6;
-  z-index:1000;
-  font-family:verdana,helvetica,arial,sans-serif;
+  color:white;
 }
 
 #curio_form_container
 {
   padding:10px 10px 10px 10px;
-}
-
-#curio_title, #curio_question, #curio_alert
-{
-  color:white;
 }
 
 #curio_title

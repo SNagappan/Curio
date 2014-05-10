@@ -1,0 +1,31 @@
+<div id="curioM2" class="curio">
+  <div id="curio_form_container">
+    <form id="curio_m2_form">
+      <div>
+        <h2 id="curio_title">Curi.o</h2>
+        <p id="curio_question">How many times do you think you've visited this site today?<br>
+        <input type="radio" name="time" value="5" checked> Less than 5 times<br>
+        <input type="radio" name="time" value="10"> 5 to 10 times<br>
+        <input type="radio" name="time" value="15"> 10 to 15 times<br>
+        <input type="radio" name="time" value="20"> 15 to 20 times<br>
+        <input type="radio" name="time" value="25"> More than 20 times<br>
+        <input type="hidden" name="uid" value="1">
+        <input type="hidden" name="site" value="www.google.com">
+        </p>
+      </div>
+      <button id="curio_submit" class="curio_btn" type="button">Submit</button>
+      <button id="curio_cancel" class="curio_btn" type="button">Cancel</button>
+    </form>
+  </div>
+  <script>
+    $("#curio_submit").click(function() {
+      <!--$.post("http://localhost:3000/api/stay-time", $("#curio_m2_form").serialize());-->
+      <!--chrome.runtime.sendMessage($("input[name=time]:checked", "#curio_m2_form").val());-->
+      $("#curioM2").remove();
+    });
+
+    $("#curio_cancel").click(function() {
+      $("#curioM2").remove();
+    });
+  </script>
+</div>

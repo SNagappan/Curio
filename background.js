@@ -172,36 +172,45 @@ function updateTime(site, seconds) {
   if (!sites[site]) {
     sites[site] = 0;
   }
-  var prevTime = sites[site];
   sites[site] = sites[site] + seconds;
-  var nowTime = sites[site];
   localStorage.sites = JSON.stringify(sites);
+
+  var currentData = JSON.parse(localStorage[currentTabId]);
+  currentData.activeTime += seconds;
+  localStorage[currentTabId] = JSON.stringify(currentData);
 
   // send data to server
   jQuery.post(host + "/api/active-time", {uid: localStorage.uid, site: site, time: seconds});
 
-  var time = Math.floor(sites[site]);
-  var alert, triggerA = false;
-  // alert 1
-  if (time > 600 && Math.floor(nowTime / 30) - Math.floor(prevTime / 30) > 0) {
-  //if (time > 600) {
-    triggerA = true;
-    alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes today.\"";
-  }
+  // check if trigger alert
+  chrome.tabs.get(currentTabId, function(tab) {
+    // switched to another tab, don't show alert
+    if (getSiteFromUrl(tab.url) != site) return;
 
-  // trigger alert
-  if (triggerA) {
-    console.log('trigger alert');
-    console.log(alert);
-    chrome.tabs.executeScript(currentTabId, {file: "jquery.js"}, function() {
-      chrome.tabs.executeScript(currentTabId, {code: "var jsParams={type: \"alert\", alert:" + alert + "}"}, function() {
-        chrome.tabs.executeScript(currentTabId, {file: "inject.js"}, function() {
-          chrome.tabs.executeScript(currentTabId, {file: "changeA.js"});
+    var time = Math.floor(currentData.activeTime);
+    var alert, triggerA = false;
+    // alert 1
+    if (time > currentData.triggerTime) {
+      triggerA = true;
+      alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes.\"";
+      // set next trigger time
+      currentData.triggerTime += 30;
+    }
+
+    // trigger alert
+    if (triggerA) {
+      console.log('trigger alert');
+      console.log(alert);
+      chrome.tabs.executeScript(currentTabId, {file: "jquery.js"}, function() {
+        chrome.tabs.executeScript(currentTabId, {code: "var jsParams={type: \"alert\", alert:" + alert + "}"}, function() {
+          chrome.tabs.executeScript(currentTabId, {file: "inject.js"}, function() {
+            chrome.tabs.executeScript(currentTabId, {file: "changeAlert.js"});
+          });
+          chrome.tabs.insertCSS(currentTabId, {file: "dialog.css"});
         });
-        chrome.tabs.insertCSS(currentTabId, {file: "dialog.css"});
       });
-    });
-  }
+    }
+  });
 }
 
 function incrementUrlToCount(url) {
@@ -226,6 +235,10 @@ function initialize() {
 
   if (!localStorage.urlToCount) {
     localStorage.urlToCount = JSON.stringify({});
+  }
+
+  if (!localStorage.lastAnswer) {
+    localStorage.lastAnswer = JSON.stringify({});
   }
 
   if (!localStorage.paused) {
@@ -305,7 +318,6 @@ function initialize() {
 
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     //console.log("############ onupdate ############");
-    //console.log(tab.id);
     //console.log(tab.url);
     //console.log(changeInfo);
     if (!changeInfo || changeInfo.status != "complete") {
@@ -313,40 +325,82 @@ function initialize() {
     }
     var incCounter = false;
     var url = getSiteFromUrl(tab.url);
-    var tabid = 'tab' + tab.id;
-    if (localStorage[tabid] == undefined || localStorage[tabid] != url) {
+    if (localStorage[tab.id] == undefined || JSON.parse(localStorage[tab.id]).url != url) {
       incCounter = true;
-      localStorage[tabid] = url;
+      var data = {};
+      data.url = url;
+      data.activeTime = 0;
+      // default 15 mins
+      data.triggerTime = 15 * 60;
+      localStorage[tab.id] = JSON.stringify(data);
     }
     if (incCounter) {
+      // visiting a new site
       incrementUrlToCount(url);
       var urlToCount = JSON.parse(localStorage.urlToCount);
 
       // send data to server
       jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
-      
-      var triggerQ = false;
-      var question;
-      // question 1
-      if (urlToCount[url] > 0 && urlToCount[url] % 2 == 0) {
-        triggerQ = true;
-        question = "This is the " + urlToCount[url] + "th times you visited " + url + " today. Why are you visiting this site so often?";
-      }
-      // question 2
-      // TODO
 
-      // trigger question
-      if (triggerQ) {
-        console.log("trigger question");
+      if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 2) {
+        //trigger multiple question 2
+        console.log("trigger multiple question 2");
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question\", question:\"" + question + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
-            chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
-              chrome.tabs.executeScript(tabId, {file: "changeQ.js"});
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+            chrome.tabs.executeScript(tabId, {file: "inject.js"});
+            chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+          });
+        });
+      } else if (urlToCount[url] >= 10 && urlToCount[url] % 2 == 0) {
+        // trigger open-ended question
+        console.log("trigger open-ended question");
+        var lastAnswer = JSON.parse(localStorage.lastAnswer);
+        var answer = lastAnswer[url];
+        if (answer == undefined) {
+          // show open-ended question1
+          chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+              chrome.tabs.executeScript(tabId, {file: "inject.js"});
+              chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
             });
+          });
+        } else {
+          // show open-ended question2 with previous answer
+          chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question2\",answer:\"" + answer + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+              chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
+                chrome.tabs.executeScript(tabId, {file: "changeAnswer.js"});
+              });
+              chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+            });
+          });
+        }
+      } else {
+        // trigger mutliple question 1
+        console.log("trigger multiple question 1");
+        chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+            chrome.tabs.executeScript(tabId, {file: "inject.js"});
             chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
           });
         });
       }
+    }
+  });
+
+  // receive messages sent from injected code
+  chrome.runtime.onMessage.addListener(function(msg, sender, res) {
+    console.log(msg);
+    if (msg.time) {
+      var currentData = JSON.parse(localStorage[sender.tab.id]);
+      currentData.triggerTime = parseInt(msg);
+      localStorage[sender.tab.id] = JSON.stringify(currentData);
+    }
+    if (msg.answer) {
+      var url = getSiteFromUrl(sender.tab.url);
+      var lastAnswer = JSON.parse(localStorage.lastAnswer);
+      lastAnswer[url] = msg.answer;
+      localStorage.lastAnswer = JSON.stringify(lastAnswer);
     }
   });
 
