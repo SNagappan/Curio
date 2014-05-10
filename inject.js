@@ -9,6 +9,10 @@ if (jsParams.type == "question") {
   if ($("#curioA").length > 0) {
     exists = true;
   }
+} else if (jsParams.type == "multichoice1") {
+  if ($("#curioM1").length > 0) {
+    exists = true;
+  }
 }
 if (!exists) {
   $.get(chrome.extension.getURL(file), function(data) {
