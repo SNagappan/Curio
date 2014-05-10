@@ -8,6 +8,7 @@
     "default_title": "Curi.o"
   },
   "description": "Keeps track of how much time you spend on various web sites.",
+  "options_page": "options.html",
   "icons": {
     "128": "images/icon.png"
   },
