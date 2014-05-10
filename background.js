@@ -190,6 +190,10 @@ function initialize() {
     localStorage.urlToCount = JSON.stringify({});
   }
 
+  if (!localStorage.lastAnswer) {
+    localStorage.lastAnswer = JSON.stringify({});
+  }
+
   if (!localStorage.paused) {
     localStorage.paused = "false";
   }
@@ -288,45 +292,66 @@ function initialize() {
       // send data to server
       jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
 
-      // trigger mutliple question 1
-      console.log("trigger multiple question 1");
-      chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-        chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
-          chrome.tabs.executeScript(tabId, {file: "inject.js"});
-          chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+      if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 2) {
+        //trigger multiple question 2
+        console.log("trigger multiple question 2");
+        chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+            chrome.tabs.executeScript(tabId, {file: "inject.js"});
+            chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+          });
         });
-      });
-      
-      var triggerQ = false;
-      var question;
-      // question 1
-      if (urlToCount[url] > 0 && urlToCount[url] % 2 == 0) {
-        triggerQ = true;
-        question = "This is the " + urlToCount[url] + "th times you visited " + url + " today. Why are you visiting this site so often?";
-      }
-      // question 2
-      // TODO
-
-      // trigger question
-      if (triggerQ) {
-        //console.log("trigger question");
-        //console.log(question);
-        //chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          //chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question\", question:\"" + question + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
-            //chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
-              //chrome.tabs.executeScript(tabId, {file: "changeQ.js"});
-            //});
-            //chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
-          //});
-        //});
+      } else if (urlToCount[url] >= 10 && urlToCount[url] % 2 == 0) {
+        // trigger open-ended question
+        console.log("trigger open-ended question");
+        var lastAnswer = JSON.parse(localStorage.lastAnswer);
+        var answer = lastAnswer[url];
+        if (answer == undefined) {
+          // show open-ended question1
+          chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+              chrome.tabs.executeScript(tabId, {file: "inject.js"});
+              chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+            });
+          });
+        } else {
+          // show open-ended question2 with previous answer
+          chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question2\",answer:\"" + answer + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+              chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
+                chrome.tabs.executeScript(tabId, {file: "changeAnswer.js"});
+              });
+              chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+            });
+          });
+        }
+      } else {
+        // trigger mutliple question 1
+        console.log("trigger multiple question 1");
+        chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+            chrome.tabs.executeScript(tabId, {file: "inject.js"});
+            chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
+          });
+        });
       }
     }
   });
 
+  // receive messages sent from injected code
   chrome.runtime.onMessage.addListener(function(msg, sender, res) {
-    var currentData = JSON.parse(localStorage[sender.tab.id]);
-    currentData.triggerTime = parseInt(msg);
-    localStorage[sender.tab.id] = JSON.stringify(currentData);
+    console.log(msg);
+    if (msg.time) {
+      var currentData = JSON.parse(localStorage[sender.tab.id]);
+      currentData.triggerTime = parseInt(msg);
+      localStorage[sender.tab.id] = JSON.stringify(currentData);
+    }
+    if (msg.answer) {
+      var url = getSiteFromUrl(sender.tab.url);
+      var lastAnswer = JSON.parse(localStorage.lastAnswer);
+      lastAnswer[url] = msg.answer;
+      localStorage.lastAnswer = JSON.stringify(lastAnswer);
+    }
   });
 
   /* Force an update of the counter every minute. Otherwise, the counter

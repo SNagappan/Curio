@@ -12,9 +12,11 @@
     "128": "images/icon.png"
   },
   "web_accessible_resources": [
-    "question.html",
+    "question1.html",
+    "question2.html",
     "alert.html",
-    "multichoice1.html"
+    "multichoice1.html",
+    "multichoice2.html"
   ],
   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDTbCDrrlic5JtM9k2+DnKE8W2GcuDql0wtU3cIH+/wwA+iXJZGWYblA0T3vp0HbKrfg5uGHdDvJGMKgKnZ+xtto/4ELMkB865YnBRmldpfIlEdExPc+HkTJoGWccN6q8ry84m4dhQlO471cvcTB2s4IqNAg6d2Za0A+qcNkLHS+QIDAQAB",
   "manifest_version": 2,

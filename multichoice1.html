@@ -21,7 +21,7 @@
   <script>
     $("#curio_submit").click(function() {
       <!--$.post("http://localhost:3000/api/stay-time", $("#curio_m1_form").serialize());-->
-      chrome.runtime.sendMessage($("input[name=time]:checked", "#curio_m1_form").val());
+      chrome.runtime.sendMessage({time:$("input[name=time]:checked", "#curio_m1_form").val()});
       $("#curioM1").remove();
     });
 
