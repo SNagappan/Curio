@@ -204,7 +204,7 @@ function updateTime(site, seconds) {
       chrome.tabs.executeScript(currentTabId, {file: "jquery.js"}, function() {
         chrome.tabs.executeScript(currentTabId, {code: "var jsParams={type: \"alert\", alert:" + alert + "}"}, function() {
           chrome.tabs.executeScript(currentTabId, {file: "inject.js"}, function() {
-            chrome.tabs.executeScript(currentTabId, {file: "changeA.js"});
+            chrome.tabs.executeScript(currentTabId, {file: "changeAlert.js"});
           });
           chrome.tabs.insertCSS(currentTabId, {file: "dialog.css"});
         });
