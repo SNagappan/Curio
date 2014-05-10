@@ -1,6 +1,6 @@
 <div id="curioM1" class="curio">
   <div id="curio_form_container">
-    <form id="curio_m1_form" method="post" action="http://localhost:3000/api/stay-time">
+    <form id="curio_m1_form">
       <div>
         <h2 id="curio_title">Curi.o</h2>
         <p id="curio_question">How long do you expect to spend on this site? <br>
@@ -10,8 +10,6 @@
         <input type="radio" name="time" value="45"> ~45<br>
         <input type="radio" name="time" value="60"> ~60<br>
         <input type="radio" name="time" value="90"> >60<br>
-        <input type="hidden" name="uid" value="1">
-        <input type="hidden" name="site" value="www.google.com">
         </p>
       </div>
       <button id="curio_submit" class="curio_btn" type="button">Submit</button>
@@ -20,8 +18,9 @@
   </div>
   <script>
     $("#curio_submit").click(function() {
-      <!--$.post("http://localhost:3000/api/stay-time", $("#curio_m1_form").serialize());-->
-      chrome.runtime.sendMessage({time:$("input[name=time]:checked", "#curio_m1_form").val()});
+      var time = $("input[name=time]:checked", "#curio_m1_form").val();
+      $.post("http://localhost:3000/api/estimate-active-time", {time:time, site:jsParams.site, uid:jsParams.uid});
+      chrome.runtime.sendMessage({time:time});
       $("#curioM1").remove();
     });
 

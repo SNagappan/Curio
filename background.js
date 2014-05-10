@@ -189,20 +189,14 @@ function updateTime(site, seconds) {
     if (getSiteFromUrl(tab.url) != site) return;
 
     var time = Math.floor(currentData.activeTime);
-    var alert, triggerA = false;
-    // alert 1
+    var alert;
+    // trigger alert 1
     if (time > currentData.triggerTime) {
-      triggerA = true;
       alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes.\"";
-      // set next trigger time
+      // set next trigger time (5 mins)
       currentData.triggerTime += 5 * 60;
       localStorage[currentTabId] = JSON.stringify(currentData);
-    }
-
-    // trigger alert
-    if (triggerA) {
-      console.log('trigger alert');
-      console.log(alert);
+      console.log('trigger alert for active time');
       chrome.tabs.executeScript(currentTabId, {file: "jquery.js"}, function() {
         chrome.tabs.executeScript(currentTabId, {code: "var jsParams={type: \"alert\", alert:" + alert + "}"}, function() {
           chrome.tabs.executeScript(currentTabId, {file: "inject.js"}, function() {
@@ -212,6 +206,21 @@ function updateTime(site, seconds) {
         });
       });
     }
+
+    // trigger active-time question after you stayed on a site for a while
+    if (time > 10 && !currentData.shownMC1) {
+      // trigger mutliple choice question 1
+      console.log("trigger multiple question 1 (active time)");
+      currentData.shownMC1 = 1;
+      localStorage[currentTabId] = JSON.stringify(currentData);
+      chrome.tabs.executeScript(currentTabId, {file: "jquery.js"}, function() {
+        chrome.tabs.executeScript(currentTabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + site + "\"}"}, function() {
+          chrome.tabs.executeScript(currentTabId, {file: "inject.js"});
+          chrome.tabs.insertCSS(currentTabId, {file: "dialog.css"});
+        });
+      });
+    }
+
   });
 }
 
@@ -334,6 +343,7 @@ function initialize() {
       data.activeTime = 0;
       // default not show, set it really large
       data.triggerTime = 120 * 60;
+      data.shownMC1 = 0;
       localStorage[tab.id] = JSON.stringify(data);
     }
     if (incCounter) {
@@ -344,8 +354,8 @@ function initialize() {
       // send data to server
       jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
 
-      if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 2) {
-        //trigger multiple question 2
+      if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 1) {
+        //trigger multiple choice question 2
         console.log("trigger multiple question 2");
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
           chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
@@ -353,7 +363,7 @@ function initialize() {
             chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
           });
         });
-      } else if (urlToCount[url] >= 10 && urlToCount[url] % 2 == 0) {
+      } else if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 0) {
         // trigger open-ended question
         console.log("trigger open-ended question");
         var lastAnswer = JSON.parse(localStorage.lastAnswer);
@@ -378,14 +388,6 @@ function initialize() {
           });
         }
       } else {
-        // trigger mutliple question 1
-        console.log("trigger multiple question 1");
-        chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
-            chrome.tabs.executeScript(tabId, {file: "inject.js"});
-            chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
-          });
-        });
       }
     }
   });
