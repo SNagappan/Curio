@@ -195,6 +195,7 @@ function updateTime(site, seconds) {
       alert = "\"You've spent on this site about " + Math.floor(time / 60) + " minutes.\"";
       // set next trigger time
       currentData.triggerTime += 30;
+      localStorage[currentTabId] = JSON.stringify(currentData);
     }
 
     // trigger alert
@@ -393,7 +394,7 @@ function initialize() {
     console.log(msg);
     if (msg.time) {
       var currentData = JSON.parse(localStorage[sender.tab.id]);
-      currentData.triggerTime = parseInt(msg);
+      currentData.triggerTime = parseInt(msg.time);
       localStorage[sender.tab.id] = JSON.stringify(currentData);
     }
     if (msg.answer) {
