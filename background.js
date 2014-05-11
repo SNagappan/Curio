@@ -249,6 +249,10 @@ function initialize() {
     localStorage.lastAnswer = JSON.stringify({});
   }
 
+  if (!localStorage.lastCleared) {
+    localStorage.lastCleared = new Date();
+  }
+
   if (!localStorage.paused) {
     localStorage.paused = "false";
   }
@@ -437,25 +441,34 @@ function initialize() {
   chrome.idle.queryState(60, checkIdleTime);
   chrome.idle.onStateChanged.addListener(checkIdleTime);
 
-  chrome.alarms.create("clearAlarm", {delayInMinutes: minsTo5AM(), periodInMinutes: 1440} );
+  chrome.alarms.create("clearAlarm", {delayInMinutes: minsToMidnight(), periodInMinutes: 1440} );
   chrome.alarms.onAlarm.addListener(function(alarm) {
     console.log("Clear Alarm Triggered");
     clearData();
+  });
+
+  chrome.runtime.onStartup.addListener(function() {
+    var lastCleared = new Date(Date.parse(localStorage.lastCleared));
+    var now = new Date()
+
+    if (now.getDate() > lastCleared.getDate()){
+      clearData();
+    }
   });
 }
 
 function clearData() {
   console.log("Clear Data");
+  localStorage.lastCleared = new Date();
   localStorage.sites = JSON.stringify({});
   localStorage.urlToCount = JSON.stringify({});
 }
 
-function minsTo5AM() {
+function minsToMidnight() {
     var now = new Date();
-    var next = new Date(now);
-    next.setDate(next.getDate() + 1);
-    next.setHours(5,0,0,0);
-    return (next - now)/6e4;
+    var then = new Date(now);
+    then.setHours(24,0,0,0);
+    return (then - now)/6e4;
 }
 
 initialize();
