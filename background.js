@@ -186,6 +186,11 @@ function updateTime(site, seconds) {
     // switched to another tab, don't show alert
     if (getSiteFromUrl(tab.url) != site) return;
 
+    if (localStorage["feedback"] == "false") {
+      console.log('Do not trigger alerts');
+      return;
+    }
+
     var time = Math.floor(currentData.activeTime);
     // trigger alert 1
     if (time > currentData.triggerTime) {
@@ -237,6 +242,14 @@ function incrementUrlToCount(url) {
  * Initailized our storage and sets up tab listeners.
  */
 function initialize() {
+  if (!localStorage.firstInstalled) {
+    localStorage.firstInstalled = new Date();
+  }
+
+  if (!localStorage.feedback) {
+    localStorage.feedback = "false";
+  }
+
   if (!localStorage.sites) {
     localStorage.sites = JSON.stringify({});
   }
@@ -361,6 +374,11 @@ function initialize() {
       // send data to server
       jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
 
+      if (localStorage["feedback"] == "false") {
+        console.log('Do not trigger alerts');
+        return;
+      }
+
       if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 1) {
         //trigger multiple choice question 2
         console.log("trigger multiple question 2");
@@ -445,9 +463,16 @@ function initialize() {
   chrome.idle.onStateChanged.addListener(checkIdleTime);
 
   chrome.alarms.create("clearAlarm", {delayInMinutes: minsToMidnight(), periodInMinutes: 1440} );
+  chrome.alarms.create("switchSystems", {delayInMinutes: oneWeekFromInstalled()} );
+
   chrome.alarms.onAlarm.addListener(function(alarm) {
-    console.log("Clear Alarm Triggered");
-    clearData();
+    if (alarm.name == "clearAlarm") {
+      console.log("Clear Alarm Triggered");
+      clearData();
+    } else if (alarm.name == "switchSystems") {
+      console.log("Switch Systems Triggered");
+      switchSystems();
+    }
   });
 
   chrome.runtime.onStartup.addListener(function() {
@@ -457,6 +482,14 @@ function initialize() {
     if (now.getDate() > lastCleared.getDate()){
       clearData();
     }
+
+    var firstInstalled = new Date(Date.parse(localStorage.firstInstalled));
+    firstInstalled.setDate(firstInstalled.getDate() + 7);
+    firstInstalled.setHours(0,0,0,0);
+
+    if (now > firstInstalled){
+      switchSystems();
+    }    
   });
 }
 
@@ -467,11 +500,29 @@ function clearData() {
   localStorage.urlToCount = JSON.stringify({});
 }
 
+function switchSystems() {
+  console.log("Switch Systems");
+  localStorage.firstInstalled = new Date();
+  if (localStorage["feedback"] == "true") {
+    localStorage.feedback = "false";
+  } else {
+    localStorage.feedback = "true";
+  }
+}
+
 function minsToMidnight() {
     var now = new Date();
     var then = new Date(now);
     then.setHours(24,0,0,0);
     return (then - now)/6e4;
+}
+
+function oneWeekFromInstalled() {
+    var now = new Date();
+    var firstInstalled = new Date(Date.parse(localStorage.firstInstalled));
+    firstInstalled.setDate(firstInstalled.getDate() + 7);
+    firstInstalled.setHours(0,0,0,0);
+    return (firstInstalled - now)/6e4;
 }
 
 initialize();
