@@ -337,6 +337,9 @@ function initialize() {
     }
     var incCounter = false;
     var url = getSiteFromUrl(tab.url);
+    if (url == null){
+      return;
+    }
     if (localStorage[tab.id] == undefined || JSON.parse(localStorage[tab.id]).url != url) {
       incCounter = true;
       var data = {};
@@ -353,7 +356,7 @@ function initialize() {
       var urlToCount = JSON.parse(localStorage.urlToCount);
 
       console.log("############ onupdate ############");
-      console.log("visisted : " + urlToCount[url]);
+      console.log("visited : " + urlToCount[url]);
 
       // send data to server
       jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
