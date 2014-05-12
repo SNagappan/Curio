@@ -314,7 +314,7 @@ function initialize() {
 
   chrome.tabs.onUpdated.addListener(
   function(tabId, changeInfo, tab) {
-    if (tabId == currentTabId) {
+    if (tabId == currentTabId && changeInfo && changeInfo.status == "complete") {
       console.log("Tab updated");
       updateCounter();
     }
