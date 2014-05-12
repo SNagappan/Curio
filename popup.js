@@ -23,11 +23,7 @@ function addLocalDisplay() {
    return b[1] - a[1];
   });
 
-  /* Show only the top 15 sites by default */
-  var max = 15;
-  if (document.location.href.indexOf("show=all") != -1) {
-   max = sortedSites.length;
-  }
+  var max = sortedSites.length;
 
   /* Add total row. */
   var row = document.createElement("tr");
@@ -62,19 +58,6 @@ function addLocalDisplay() {
    row.appendChild(cell);
    tbody.appendChild(row);
   }
-
-  /* Add an option to show all stats */
-  var showAllLink = document.createElement("a");
-  showAllLink.onclick = function() {
-   chrome.tabs.create({url: "popup.html?show=all"});
-  }
-
-  /* Show the "Show All" link if there are some sites we didn't show. */
-  if (max < sortedSites.length) {
-   showAllLink.setAttribute("href", "javascript:void(0)");
-   showAllLink.appendChild(document.createTextNode("Show All"));
-   document.getElementById("options").appendChild(showAllLink);
-  }
 }
 
 function togglePause() {
@@ -83,11 +66,11 @@ function togglePause() {
   if (localStorage["paused"] == "false") {
    console.log("Setting to Resume");
    chrome.extension.sendRequest({action: "pause"}, function(response) {});
-   document.getElementById("toggle_pause").innerHTML = "Resume Timer";
+   document.getElementById("toggle_pause").innerHTML = "Resume Curi.o";
   } else if (localStorage["paused"] == "true"){
    console.log("Setting to Pause");
    chrome.extension.sendRequest({action: "resume"}, function(response) {});
-   document.getElementById("toggle_pause").innerHTML = "Pause Timer";
+   document.getElementById("toggle_pause").innerHTML = "Pause Curi.o";
   }
 }
 
@@ -104,9 +87,9 @@ function initialize() {
   var link = document.getElementById("toggle_pause");
   if (localStorage["paused"] == undefined || localStorage["paused"] == "false") {
    localStorage["paused"] = "false";
-   link.innerHTML = "Pause Timer";
+   link.innerHTML = "Pause Curi.o";
   } else {
-   link.innerHTML = "Resume Timer";
+   link.innerHTML = "Resume Curi.o";
   }
 }
 
