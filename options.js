@@ -31,6 +31,16 @@ function restoreOptions() {
   ignoredSites = JSON.parse(ignoredSites);
   var select = document.getElementById("ignored_sites");
   select.options.length = 0;
+
+  var removeButton = document.getElementById("removeIgnoredSites");
+  if (ignoredSites.length == 0){
+    select.style.display = 'none';
+    removeButton.style.display = 'none';
+  } else {
+    select.style.display = 'block';
+    removeButton.style.display = 'block';
+  }
+
   for (var i in ignoredSites) {
     var option = document.createElement("option");
     option.text = ignoredSites[i];
