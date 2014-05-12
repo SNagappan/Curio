@@ -225,7 +225,6 @@ function updateTime(site, seconds) {
         });
       });
     }
-
   });
 }
 
@@ -383,7 +382,7 @@ function initialize() {
         return;
       }
 
-      if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 1) {
+      if (urlToCount[url] >= 8 && urlToCount[url] % 8 == 3) {
         //trigger multiple choice question 2
         console.log("trigger multiple question 2");
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
@@ -392,7 +391,7 @@ function initialize() {
             chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
           });
         });
-      } else if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 0) {
+      } else if (urlToCount[url] >= 8 && urlToCount[url] % 8 == 0) {
         // trigger open-ended question
         console.log("trigger open-ended question");
         var lastAnswer = JSON.parse(localStorage.lastAnswer);
@@ -417,7 +416,7 @@ function initialize() {
             });
           });
         }
-      } else if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 2) {
+      } else if (urlToCount[url] >= 8 && urlToCount[url] % 8 == 4) {
         // trigger alert 2 (times visited)
         var alert = "\"You've visited this site for " + urlToCount[url] + " times today.\"";
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
