@@ -33,6 +33,7 @@ function addLocalDisplay() {
   var row = document.createElement("tr");
   var cell = document.createElement("td");
   cell.innerHTML = "<b>Total</b>";
+  row.id = "total";
   row.appendChild(cell);
   cell = document.createElement("td");
   cell.appendChild(document.createTextNode((totalTime / 60).toFixed(2)));

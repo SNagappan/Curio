@@ -24,29 +24,34 @@ body
 	width: 480px;
 	text-align: left;
 	border-collapse: collapse;
+	padding-left:15px;
 }
 #stats th, #response
 {
 	font-size: 13px;
-	font-weight: normal;
-	padding: 8px;
-	background: #b9c9fe;
-	border-top: 4px solid #aabcfe;
-	border-bottom: 1px solid #fff;
-	color: #039;
+	font-weight: bold;
+	padding: 10px;
+	background-color: #0ac2d2;
+	color: black;
+	text-transform: uppercase;
 }
 #stats td
 {
 	padding: 8px;
-	background: #e8edff; 
+	background: #cbf9fd; 
 	border-bottom: 1px solid #fff;
 	color: #669;
 	border-top: 1px solid transparent;
 }
+#total td{
+	background-color: white;
+	color: black;
+	font-weight: bold;
+}
 
 #stats tr:hover td
 {
-	background: #d0dafd;
+	background: white;
 	color: #339;
 }
 
