@@ -4,7 +4,7 @@
           <h2 id="curio_title">Curi.o</h2>
           <p id="curio_question">What is your purpose for visiting this site?</p>
           <p>Last time you said</p>
-          <b><p id="curio_answer">blah blah</p></b>
+          <b><p id="curio_answer">Default</p></b>
           <p>Is it the same reason for this time?</p>
       </div>
       <div id="curio_answerarea">
@@ -18,10 +18,10 @@
   <script>
     $("#curio_submit").click(function() {
         if ($("input[name=same]:checked", "#curio_answerarea").val() == 1) {
-          $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: $("#curio_answer").text()});
+          $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: $("#curio_answer").text(), feedback:jsParams.feedback});
         } else {
           var answer = $("#curio_textarea").val();
-          $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: answer});
+          $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: answer, feedback:jsParams.feedback});
           chrome.runtime.sendMessage({answer: answer});
         }
       $("#curioQ").remove();
