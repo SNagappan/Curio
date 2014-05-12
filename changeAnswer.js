@@ -1,1 +1,1 @@
-$("#curio_answer").text(jsParams.answer);
+$("#curio_answer").text(unescape(jsParams.answer));

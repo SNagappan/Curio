@@ -1,11 +1,5 @@
 function addIgnoredSite() {
   var newSite = document.getElementById("new_ignored_site").value;
-  if (newSite.indexOf("http://") != 0 &&
-      newSite.indexOf("https://") != 0) {
-    alert("Include http:// or https:// prefix.");
-    return;
-  }
-
   chrome.extension.sendRequest(
      {action: "addIgnoredSite", site: newSite},
      function(response) {
@@ -32,11 +26,23 @@ function restoreOptions() {
   console.log("restoreOptions")
   console.log(ignoredSites)
   if (!ignoredSites) {
+    document.getElementById("ignored_sites").style.display = 'none';
+    document.getElementById("removeIgnoredSites").style.display = 'none';
     return;
   }
   ignoredSites = JSON.parse(ignoredSites);
   var select = document.getElementById("ignored_sites");
   select.options.length = 0;
+
+  var removeButton = document.getElementById("removeIgnoredSites");
+  if (ignoredSites.length == 0){
+    select.style.display = 'none';
+    removeButton.style.display = 'none';
+  } else {
+    select.style.display = 'block';
+    removeButton.style.display = 'block';
+  }
+
   for (var i in ignoredSites) {
     var option = document.createElement("option");
     option.text = ignoredSites[i];
@@ -49,4 +55,8 @@ document.addEventListener("DOMContentLoaded", function() {
   restoreOptions();
   document.getElementById("addIgnoredSite").addEventListener("click", addIgnoredSite);
   document.getElementById("removeIgnoredSites").addEventListener("click", removeIgnoredSites);
+
+  var userID = document.createElement("a");
+  userID.appendChild(document.createTextNode(localStorage.uid));
+  document.getElementById("userID").appendChild(userID);
 });

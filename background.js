@@ -28,9 +28,10 @@ function getSiteFromUrl(url) {
   var match = url.match(siteRegexp);
   if (match) {
     // check scheme
-    var scheme = match[1].split(':')[0];
+    var scheme = match[1].split('://')[0];
+    var domain = match[1].split('://')[1];
     if (scheme == 'http' || scheme == 'https') {
-      match = match[1].substring(scheme.length + 3);
+      return domain;
     } else {
       // only care about http and https
       return null
@@ -81,15 +82,17 @@ function resume() {
 */
 function addIgnoredSite(site) {
   console.log("Removing " + site);
-  site = getSiteFromUrl(site);
-  if (!site) {
-    return;
-  }
+  site = getSiteFromUrl(site) == null ? site : getSiteFromUrl(site);
   var ignoredSites = localStorage.ignoredSites;
   if (!ignoredSites) {
     ignoredSites = [];
   } else {
     ignoredSites = JSON.parse(ignoredSites);
+  }
+  for (var i = 0; i < ignoredSites.length; ++i) {
+    if (site == ignoredSites[i]) {
+      return;
+    }
   }
   ignoredSites.push(site);
   localStorage.ignoredSites = JSON.stringify(ignoredSites);
@@ -179,7 +182,7 @@ function updateTime(site, seconds) {
   localStorage[currentTabId] = JSON.stringify(currentData);
 
   // send data to server
-  jQuery.post(host + "/api/active-time", {uid: localStorage.uid, site: site, time: seconds});
+  jQuery.post(host + "/api/active-time", {uid: localStorage.uid, site: site, feedback:localStorage.feedback, time: seconds});
 
   // check if trigger alert
   chrome.tabs.get(currentTabId, function(tab) {
@@ -216,13 +219,12 @@ function updateTime(site, seconds) {
       currentData.shownMC1 = 1;
       localStorage[currentTabId] = JSON.stringify(currentData);
       chrome.tabs.executeScript(currentTabId, {file: "jquery.js"}, function() {
-        chrome.tabs.executeScript(currentTabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + site + "\"}"}, function() {
+        chrome.tabs.executeScript(currentTabId, {code: "var jsParams={type: \"multichoice1\",uid:\"" + localStorage.uid + "\",site:\"" + site + "\", feedback:\"" + localStorage.feedback + "\"}"}, function() {
           chrome.tabs.executeScript(currentTabId, {file: "inject.js"});
           chrome.tabs.insertCSS(currentTabId, {file: "dialog.css"});
         });
       });
     }
-
   });
 }
 
@@ -244,6 +246,12 @@ function incrementUrlToCount(url) {
 function initialize() {
   if (!localStorage.firstInstalled) {
     localStorage.firstInstalled = new Date();
+  }
+
+  if (!localStorage.ignoredSites) {
+    var ignoredSites = []
+    ignoredSites.push("www.google.com");
+    localStorage.ignoredSites = JSON.stringify(ignoredSites);
   }
 
   if (!localStorage.feedback) {
@@ -365,38 +373,40 @@ function initialize() {
     }
     if (incCounter) {
       // visiting a new site
+      console.log("############ onupdate ############");
       incrementUrlToCount(url);
       var urlToCount = JSON.parse(localStorage.urlToCount);
 
-      console.log("############ onupdate ############");
       console.log("visited : " + urlToCount[url]);
+      console.log(changeInfo);
 
       // send data to server
-      jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
+      jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url, feedback:localStorage.feedback});
 
       if (localStorage["feedback"] == "false") {
         console.log('Do not trigger alerts');
         return;
       }
 
-      if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 1) {
+      if (urlToCount[url] >= 8 && urlToCount[url] % 8 == 3) {
         //trigger multiple choice question 2
         console.log("trigger multiple question 2");
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice2\",times:\"" + urlToCount[url] + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+          chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"multichoice2\",times:\"" + urlToCount[url] + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\", feedback:\"" + localStorage.feedback + "\"}"}, function() {
             chrome.tabs.executeScript(tabId, {file: "inject.js"});
             chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
           });
         });
-      } else if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 0) {
+      } else if (urlToCount[url] >= 8 && urlToCount[url] % 8 == 0) {
         // trigger open-ended question
         console.log("trigger open-ended question");
         var lastAnswer = JSON.parse(localStorage.lastAnswer);
         var answer = lastAnswer[url];
+        console.log("answer: " + answer);
         if (answer == undefined) {
           // show open-ended question1
           chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question1\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\",feedback:\"" + localStorage.feedback + "\"}"}, function() {
               chrome.tabs.executeScript(tabId, {file: "inject.js"});
               chrome.tabs.insertCSS(tabId, {file: "dialog.css"});
             });
@@ -404,7 +414,7 @@ function initialize() {
         } else {
           // show open-ended question2 with previous answer
           chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question2\",answer:\"" + answer + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\"}"}, function() {
+            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question2\",answer:\"" + escape(answer) + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\",feedback:\""+ localStorage.feedback + "\"}"}, function() {
               chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
                 chrome.tabs.executeScript(tabId, {file: "changeAnswer.js"});
               });
@@ -412,7 +422,7 @@ function initialize() {
             });
           });
         }
-      } else if (urlToCount[url] >= 10 && urlToCount[url] % 10 == 2) {
+      } else if (urlToCount[url] >= 8 && urlToCount[url] % 8 == 4) {
         // trigger alert 2 (times visited)
         var alert = "\"You've visited this site for " + urlToCount[url] + " times today.\"";
         chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {

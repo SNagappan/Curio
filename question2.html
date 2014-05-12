@@ -8,19 +8,22 @@
       </div>
       <div id="curio_answerarea">
         <input id="option" type="radio" name="same" value="1" checked> Yes, same reason.<br>
-        <input class="option" style="font-family: Calibri; font-style: italic; text-align: center; font-weight: 400;"type="radio" name="same" value="0"> No, my answer changed to: <br>
+        <input class="option" id="curio_no" style="font-family: Calibri; font-style: italic; text-align: center; font-weight: 400;"type="radio" name="same" value="0"> No, my answer changed to: <br>
         <textarea id="curio_textarea" name="element_1"></textarea>
       </div>
       <button id="curio_submit" class="curio_btn" type="button">Submit</button>
       <button id="curio_cancel" class="curio_btn" type="button">Cancel</button>
   </div>
   <script>
+    $("#curio_textarea").focus(function() {
+      $("#curio_no").prop("checked", true);
+    });
     $("#curio_submit").click(function() {
         if ($("input[name=same]:checked", "#curio_answerarea").val() == 1) {
-          $.post("http://localhost:3000/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: $("#curio_answer").text()});
+          $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: $("#curio_answer").text(), feedback:jsParams.feedback});
         } else {
           var answer = $("#curio_textarea").val();
-          $.post("http://localhost:3000/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: answer});
+          $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: answer, feedback:jsParams.feedback});
           chrome.runtime.sendMessage({answer: answer});
         }
       $("#curioQ").remove();

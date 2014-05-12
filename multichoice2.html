@@ -18,7 +18,7 @@
   <script>
     $("#curio_submit").click(function() {
       var times = $("input[name=time]:checked", "#curio_m2_form").val();
-      $.post("http://curi-o.herokuapp.com/api/estimate-visit-times", {estimate_times:times, real_times: jsParams.times, uid:jsParams.uid, site:jsParams.site});
+      $.post("http://curi-o.herokuapp.com/api/estimate-visit-times", {estimate_times:times, real_times: jsParams.times, uid:jsParams.uid, site:jsParams.site, feedback:jsParams.feedback});
       $("#curioM2").remove();
     });
 
