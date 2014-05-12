@@ -19,7 +19,7 @@
   <script>
     $("#curio_submit").click(function() {
       var time = $("input[name=time]:checked", "#curio_m1_form").val();
-      $.post("http://curi-o.herokuapp.com/api/estimate-active-time", {time:time, site:jsParams.site, uid:jsParams.uid});
+      $.post("http://curi-o.herokuapp.com/api/estimate-active-time", {time:time, site:jsParams.site, uid:jsParams.uid, feedback:jsParams.feedback});
       chrome.runtime.sendMessage({time:time});
       $("#curioM1").remove();
     });
