@@ -247,7 +247,7 @@ function initialize() {
   }
 
   if (!localStorage.feedback) {
-    localStorage.feedback = "false";
+    localStorage.feedback = "true";
   }
 
   if (!localStorage.sites) {

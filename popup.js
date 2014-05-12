@@ -47,6 +47,7 @@ function addLocalDisplay() {
    var site = sortedSites[index][0];
    row = document.createElement("tr");
    cell = document.createElement("td");
+   cell.className = "siteVisited";
    cell.appendChild(document.createTextNode(site));
    row.appendChild(cell);
    cell = document.createElement("td");
@@ -109,8 +110,23 @@ function initialize() {
   }
 }
 
+function showComments(e) {
+  if(e.target.className == "siteVisited") {
+    var uid = localStorage.uid;
+    var site = e.target.innerHTML;
+    $.get("http://localhost:3000/api/user-responses", 
+      {uid: uid, site: site}, function(results) {
+      localStorage["currentSite"] = site;
+      localStorage["answers"] = JSON.stringify(results);
+      chrome.tabs.create({url: "user-response.html"});
+    });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("toggle_pause").addEventListener(
     "click", togglePause); 
+  document.querySelector("body").addEventListener(
+     "click", showComments); 
   initialize();
 });
