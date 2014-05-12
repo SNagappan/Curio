@@ -13,7 +13,7 @@
   <script>
     $("#curio_submit").click(function() {
       var answer = $("#curio_textarea").val();
-      $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: answer, jsParams.feedback});
+      $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: answer, feedback:jsParams.feedback});
       chrome.runtime.sendMessage({answer: answer});
       $("#curioQ").remove();
     });
