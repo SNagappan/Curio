@@ -1,11 +1,5 @@
 function addIgnoredSite() {
   var newSite = document.getElementById("new_ignored_site").value;
-  if (newSite.indexOf("http://") != 0 &&
-      newSite.indexOf("https://") != 0) {
-    alert("Include http:// or https:// prefix.");
-    return;
-  }
-
   chrome.extension.sendRequest(
      {action: "addIgnoredSite", site: newSite},
      function(response) {
