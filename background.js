@@ -28,9 +28,10 @@ function getSiteFromUrl(url) {
   var match = url.match(siteRegexp);
   if (match) {
     // check scheme
-    var scheme = match[1].split(':')[0];
+    var scheme = match[1].split('://')[0];
+    var domain = match[1].split('://')[1];
     if (scheme == 'http' || scheme == 'https') {
-      match = match[1].substring(scheme.length + 3);
+      return domain;
     } else {
       // only care about http and https
       return null
@@ -81,10 +82,7 @@ function resume() {
 */
 function addIgnoredSite(site) {
   console.log("Removing " + site);
-  site = getSiteFromUrl(site);
-  if (!site) {
-    return;
-  }
+  site = getSiteFromUrl(site) == null ? site : getSiteFromUrl(site);
   var ignoredSites = localStorage.ignoredSites;
   if (!ignoredSites) {
     ignoredSites = [];
@@ -247,7 +245,7 @@ function initialize() {
   }
 
   if (!localStorage.feedback) {
-    localStorage.feedback = "false";
+    localStorage.feedback = "true";
   }
 
   if (!localStorage.sites) {
