@@ -114,7 +114,7 @@ function showComments(e) {
   if(e.target.className == "siteVisited") {
     var uid = localStorage.uid;
     var site = e.target.innerHTML;
-    $.get("http://localhost:3000/api/user-responses", 
+    $.get("http://curi-o.herokuapp.com/api/user-responses", 
       {uid: uid, site: site}, function(results) {
       localStorage["currentSite"] = site;
       localStorage["answers"] = JSON.stringify(results);
