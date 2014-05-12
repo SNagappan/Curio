@@ -244,6 +244,12 @@ function initialize() {
     localStorage.firstInstalled = new Date();
   }
 
+  if (!localStorage.ignoredSites) {
+    var ignoredSites = []
+    ignoredSites.push("www.google.com");
+    localStorage.ignoredSites = JSON.stringify(ignoredSites);
+  }
+
   if (!localStorage.feedback) {
     localStorage.feedback = "true";
   }

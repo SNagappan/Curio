@@ -26,6 +26,8 @@ function restoreOptions() {
   console.log("restoreOptions")
   console.log(ignoredSites)
   if (!ignoredSites) {
+    document.getElementById("ignored_sites").style.display = 'none';
+    document.getElementById("removeIgnoredSites").style.display = 'none';
     return;
   }
   ignoredSites = JSON.parse(ignoredSites);
