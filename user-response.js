@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", function() {
 		containers[0].appendChild(row);
 	} else {
 		for (response in answers) {
+		  if (answers[response].answer.trim().length == 0) {
+        continue;
+      }
 			var row = document.createElement("div");
 			row.className = "row";
 			var col = document.createElement("div");
