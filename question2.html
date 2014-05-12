@@ -9,13 +9,16 @@
       </div>
       <div id="curio_answerarea">
         <input type="radio" name="same" value="1" checked> Yes, same reason.<br>
-        <input type="radio" name="same" value="0"> No, this time is because<br>
+        <input id="curio_no" type="radio" name="same" value="0"> No, this time is because<br>
         <textarea id="curio_textarea" name="element_1"></textarea>
       </div>
       <button id="curio_submit" class="curio_btn" type="button">Submit</button>
       <button id="curio_cancel" class="curio_btn" type="button">Cancel</button>
   </div>
   <script>
+    $("#curio_textarea").focus(function() {
+      $("#curio_no").prop("checked", true);
+    });
     $("#curio_submit").click(function() {
         if ($("input[name=same]:checked", "#curio_answerarea").val() == 1) {
           $.post("http://curi-o.herokuapp.com/api/answers", {uid: jsParams.uid, site: jsParams.site, answer: $("#curio_answer").text(), feedback:jsParams.feedback});

@@ -1,4 +1,5 @@
 console.log('loaded');
+console.log(jsParams);
 var file = "/" + jsParams.type + ".html";
 var exists = false;
 if (jsParams.type == "question1" || jsParams.type == "question2") {
