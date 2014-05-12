@@ -104,9 +104,9 @@ function initialize() {
   var link = document.getElementById("toggle_pause");
   if (localStorage["paused"] == undefined || localStorage["paused"] == "false") {
    localStorage["paused"] = "false";
-   link.innerHTML = "Pause Timer";
+   link.innerHTML = "Pause Curi.o";
   } else {
-   link.innerHTML = "Resume Timer";
+   link.innerHTML = "Resume Curi.o";
   }
 }
 
