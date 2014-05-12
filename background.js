@@ -89,6 +89,11 @@ function addIgnoredSite(site) {
   } else {
     ignoredSites = JSON.parse(ignoredSites);
   }
+  for (var i = 0; i < ignoredSites.length; ++i) {
+    if (site == ignoredSites[i]) {
+      return;
+    }
+  }
   ignoredSites.push(site);
   localStorage.ignoredSites = JSON.stringify(ignoredSites);
 
