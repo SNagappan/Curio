@@ -1,15 +1,14 @@
 <div id="curioQ" class="curio">
   <div id="curio_form_container">
       <div>
-          <h2 id="curio_title">Curi.o</h2>
           <p id="curio_question">What is your purpose for visiting this site?</p>
-          <p>Last time you said</p>
-          <b><p id="curio_answer">Default</p></b>
-          <p>Is it the same reason for this time?</p>
+          <p id="q2_last_time">Last time you answered:</p>
+          <p id="curio_answer">blah blah</p>
+          <p id="question2">Has your reason changed?</p>
       </div>
       <div id="curio_answerarea">
-        <input type="radio" name="same" value="1" checked> Yes, same reason.<br>
-        <input id="curio_no" type="radio" name="same" value="0"> No, this time is because<br>
+        <input id="option" type="radio" name="same" value="1" checked> Yes, same reason.<br>
+        <input class="option" id="curio_no" style="font-family: Calibri; font-style: italic; text-align: center; font-weight: 400;"type="radio" name="same" value="0"> No, my answer changed to: <br>
         <textarea id="curio_textarea" name="element_1"></textarea>
       </div>
       <button id="curio_submit" class="curio_btn" type="button">Submit</button>

@@ -353,6 +353,10 @@ function initialize() {
     //console.log("############ onupdate ############");
     //console.log(tab.url);
     //console.log(changeInfo);
+    if (localStorage["paused"] == "true") {
+      return;
+    }
+
     if (!changeInfo || changeInfo.status != "complete") {
       return;
     }

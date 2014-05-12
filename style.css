@@ -1,9 +1,23 @@
+@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700|Satisfy);
+
+@font-face {
+	font-family: 'codropsicons';
+	src:url('../fonts/codropsicons/codropsicons.eot');
+	src:url('../fonts/codropsicons/codropsicons.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/codropsicons/codropsicons.woff') format('woff'),
+		url('../fonts/codropsicons/codropsicons.ttf') format('truetype'),
+		url('../fonts/codropsicons/codropsicons.svg#codropsicons') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
 body
 {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	line-height: 1.6em;
 }
 
-#stats
+#stats, #responses
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	font-size: 12px;
@@ -11,7 +25,7 @@ body
 	text-align: left;
 	border-collapse: collapse;
 }
-#stats th
+#stats th, #response
 {
 	font-size: 13px;
 	font-weight: normal;
@@ -29,8 +43,65 @@ body
 	color: #669;
 	border-top: 1px solid transparent;
 }
+
 #stats tr:hover td
 {
 	background: #d0dafd;
 	color: #339;
+}
+
+.time {
+	text-align: right;
+}
+
+.row {
+	background-color: #fff;
+	color: #aaa;
+	margin-left: 0px;
+	margin-bottom: 10px;
+	margin-right: 0px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+}
+
+#q2_last_time {
+	font-family: Calibri;
+	text-align: center;
+}
+
+#curio_answer {
+	font-family: Calibri;
+	font-style: italic;
+	font-weight: 400;
+	text-align: center;
+}
+
+.container {
+	margin-top: 15px;
+	padding: 30px;
+}
+
+#question2, .option {
+	font-family: Calibri;
+	text-align: center;
+	color: #333;
+	font-size: 16;
+	font-size: 17px;
+	font-weight: bold;
+}
+
+#title {
+	font-family: 'Lato', Calibri, Arial, sans-serif;
+	font-weight: 400;
+	line-height: 1;
+	margin: 0;
+	width: 100%;
+	text-transform: uppercase;
+	color: white;
+}
+
+#siteName {
+	color: #333;
+	font-weight: bold;
 }
