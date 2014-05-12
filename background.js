@@ -30,11 +30,9 @@ function getSiteFromUrl(url) {
     // check scheme
     var scheme = match[1].split('://')[0];
     var domain = match[1].split('://')[1];
-    if (scheme == 'http' || scheme == 'https') {
-      return domain;
-    } else {
+    if (scheme != 'http' && scheme != 'https') {
       // only care about http and https
-      return null
+      return null;
     }
 
     /* Check the ignored list. */
@@ -45,12 +43,12 @@ function getSiteFromUrl(url) {
       ignoredSites = JSON.parse(ignoredSites);
     }
     for (i in ignoredSites) {
-      if (ignoredSites[i] == match) {
-        console.log("Site is on ignore list: " + match);
+      if (ignoredSites[i] == domain) {
+        console.log("Site is on ignore list: " + domain);
         return null;
       }
     }
-    return match;
+    return domain;
   }
   return null;
 }
