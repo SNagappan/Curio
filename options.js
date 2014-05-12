@@ -49,4 +49,8 @@ document.addEventListener("DOMContentLoaded", function() {
   restoreOptions();
   document.getElementById("addIgnoredSite").addEventListener("click", addIgnoredSite);
   document.getElementById("removeIgnoredSites").addEventListener("click", removeIgnoredSites);
+
+  var userID = document.createElement("a");
+  userID.appendChild(document.createTextNode(localStorage.uid));
+  document.getElementById("userID").appendChild(userID);
 });
