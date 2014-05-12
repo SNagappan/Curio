@@ -365,11 +365,13 @@ function initialize() {
     }
     if (incCounter) {
       // visiting a new site
+      console.log("############ onupdate ############");
       incrementUrlToCount(url);
       var urlToCount = JSON.parse(localStorage.urlToCount);
 
-      console.log("############ onupdate ############");
+<<<<<<< HEAD
       console.log("visited : " + urlToCount[url]);
+      console.log(changeInfo);
 
       // send data to server
       jQuery.post(host + "/api/visit-times", {uid: localStorage.uid, site: url});
@@ -393,6 +395,7 @@ function initialize() {
         console.log("trigger open-ended question");
         var lastAnswer = JSON.parse(localStorage.lastAnswer);
         var answer = lastAnswer[url];
+        console.log("answer: " + answer);
         if (answer == undefined) {
           // show open-ended question1
           chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
