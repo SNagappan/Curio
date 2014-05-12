@@ -7,7 +7,7 @@
     "default_popup": "popup.html",
     "default_title": "Curi.o"
   },
-  "description": "Keeps track of how much time you spend on various web sites.",
+  "description": "Increase your productivity while browsing online by making you aware of your Internet use.",
   "options_page": "options.html",
   "icons": {
     "128": "images/icon.png"
