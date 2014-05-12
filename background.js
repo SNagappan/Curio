@@ -409,7 +409,7 @@ function initialize() {
         } else {
           // show open-ended question2 with previous answer
           chrome.tabs.executeScript(tabId, {file: "jquery.js"}, function() {
-            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question2\",answer:\"" + answer + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\",feedback:\""+ localStorage.feedback + "\"}"}, function() {
+            chrome.tabs.executeScript(tabId, {code: "var jsParams={type: \"question2\",answer:\"" + escape(answer) + "\",uid:\"" + localStorage.uid + "\",site:\"" + url + "\",feedback:\""+ localStorage.feedback + "\"}"}, function() {
               chrome.tabs.executeScript(tabId, {file: "inject.js"}, function() {
                 chrome.tabs.executeScript(tabId, {file: "changeAnswer.js"});
               });
